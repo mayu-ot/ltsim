@@ -11,7 +11,7 @@ poetry install
 Download the pre-processed dataset and generated layouts by running the following command.
 
 ```
-wget https://github.com/mayu-ot/ltsim/releases/download/v1.0.0/data.zip
+wget https://github.com/mayu-ot/ltsim/releases/download/v0.0.0/data.zip
 unzip data.zip
 ```
 
