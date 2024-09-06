@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "layout-eval"
+version = "0.1.0"
+description = ""
+authors = ["mayu-ot <otani_mayu@cyberagent.co.jp>"]
+readme = "README.md"
+packages = [
+    { include = "layout_eval", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+datasets = "^2.14.2"
+tqdm = "^4.66.1"
+pandas = "^2.0.3"
+seaborn = "^0.12.2"
+scikit-learn = "^1.3.0"
+ipywidgets = "^8.1.0"
+pinjected = "^0.1.113"
+pot = "^0.9.1"
+nbconvert = "^7.8.0"
+streamlit = "^1.27.1"
+streamlit-drawable-canvas = "^0.9.3"
+plotly = "^5.17.0"
+pytest = "^7.4.2"
+click = "^8.1.7"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.25.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "comp-pair"
+version = "0.1.0"
+description = ""
+authors = ["User1 <user1@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.10"
+apache-beam = {version = "<2.44.0", extras = ["gcp"]}
+datasets = "^2.14.4"
+pot = "^0.9.1"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.14.0"
+isort = "^5.12.0"
+black = "^23.7.0"
+flake8 = "^6.1.0"
+mypy = "^1.4.1"
+pysen = "^0.10.5"
+pysen-ls = "^0.1.2"
+
+[tool.poetry.group.temp]
+optional = true
+
+[tool.poetry.group.temp.dependencies]
+seaborn = "^0.12.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pysen]
+version = "0.10"
+
+[tool.pysen.lint]
+enable_black = true
+enable_flake8 = true
+enable_isort = true
+enable_mypy = true
+mypy_preset = "strict"
+line_length = 88
+py_version = "py310"
+isort_known_first_party = ["src"]
+[[tool.pysen.lint.mypy_targets]]
+  paths = ["src/"]
+
+[tool.pysen.lint.source]
+  includes = ["src/"]
