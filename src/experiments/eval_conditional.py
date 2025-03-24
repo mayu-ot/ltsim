@@ -7,45 +7,39 @@ from pathlib import Path
 import click
 import pandas as pd
 from pinjected import Design
-
-from layout_eval.measures.docsim import compute_docsim
-from layout_eval.measures.ltsim import compute_latsim_for_layout_set
-from layout_eval.measures.maximum_iou import compute_maximum_iou_for_layout_set
-from layout_eval.measures.mean_iou import compute_meaniou
+import logging
 
 import time
+from layout_eval.layout_similarity import LayoutSimilarity
 
 
 def evaluate(
-    data: list, ref_data: list, measures: dict[str, callable], properties: dict = None
+    data: list, ref_data: list, measures: list[str], properties: dict = None
 ) -> dict:
     result = defaultdict(list)
-    for measure_name, measure_fnc in measures.items():
+    for method in measures:
+        layout_similarity = LayoutSimilarity(method=method)
         # start timer
         start = time.time()
-        val = measure_fnc(data, ref_data)
+        val = layout_similarity.compare(data, ref_data)
+        # when returned value is a list, take the average
+        if isinstance(val, list):
+            val = sum(val) / len(val)
         # end timer
         end = time.time()
         n_pair = len(data)
-        print(
-            f"{measure_name} took {end - start:.2f} seconds. avg time per pair: {(end - start) / n_pair * 1000:.2f} ms"
+        logging.info(
+            (
+                f"{method} took {end - start:.2f} seconds. "
+                f"avg time per pair: {(end - start) / n_pair * 1000:.2f} ms"
+            )
         )
-        result["measure"].append(measure_name)
+        result["measure"].append(method)
         result["value"].append(val)
         if properties is not None:
             for k, v in properties.items():
                 result[k].append(v)
     return result
-
-
-def get_measures() -> dict[str, callable]:
-    measures = {
-        "mean_iou": compute_meaniou,
-        "doc_sim": compute_docsim,
-        "max_iou": compute_maximum_iou_for_layout_set,
-        "latsim": compute_latsim_for_layout_set,
-    }
-    return measures
 
 
 @dataclass
@@ -119,7 +113,7 @@ def run(dataset: str, test_run: bool = False, dry_run: bool = False):
     if dataset == "rico":
         data_dir = "data/results_conditional/rico25"
         reference_file = "data/datasets/rico25/test.json"
-        save_file = "data/results/eval_conditional/rico/result.csv"
+        save_file = "data/results/eval_conditional/rico/test_result.csv"
     elif dataset == "publaynet":
         data_dir = "data/results_conditional/publaynet"
         reference_file = "data/datasets/publaynet/test.json"
@@ -128,20 +122,27 @@ def run(dataset: str, test_run: bool = False, dry_run: bool = False):
     if dry_run:
         save_file = None
 
+    measures = [
+        "mean_iou",
+        "doc_sim",
+        "maximum_iou",
+        "lt_sim",
+        ]
+
     conf = (
         Design()
         .bind_instance(
             data_dir=data_dir,
             ref_file=reference_file,
-            measures=get_measures(),
+            measures=measures,
             save_file=save_file,
             test_run=test_run,
         )
-        .bind_provider(measures=get_measures)
     )
     g = conf.to_graph()
     g.provide(EvalConditional).run()
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     run()
