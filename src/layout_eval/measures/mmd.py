@@ -48,7 +48,7 @@ def convert_emd_to_affinity(emd, sigma=1.0):
     return np.exp(-emd / sigma)
 
 
-def estimate_mmd(xx, yy, xy):
+def compute_mmd(xx, yy, xy):
     # only use upper triangle (suppose it is symmetric)
     xx = np.mean(xx[np.triu_indices(len(xx))])
     yy = np.mean(yy[np.triu_indices(len(yy))])

@@ -3,7 +3,7 @@ from .utils import convert_cxcywy_to_ltrb
 import ot
 
 
-def compute_docemd_for_layout_pair(layout1, layout2, penalty=1.0):
+def compute_doc_emd_for_layout_pair(layout1, layout2, penalty=1.0):
     """
     Compute class-wise mean IoU
     Args:

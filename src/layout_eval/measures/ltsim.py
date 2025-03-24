@@ -5,7 +5,7 @@ from typing import Optional
 import multiprocessing
 
 
-def provide_cost_mat_and_dual_var(layout_1: dict, layout_2: dict, g_iou=True):
+def provide_cost_mat_and_dual_var(layout_1: dict, layout_2: dict, g_iou=True, positional_weight: float = 0.5):
     N = len(layout_1["category"])
     M = len(layout_2["category"])
 
@@ -27,7 +27,7 @@ def provide_cost_mat_and_dual_var(layout_1: dict, layout_2: dict, g_iou=True):
         for j, c2 in enumerate(layout_2["category"]):
             label_diff_mat[i, j] = 0 if c1 == c2 else 1
 
-    cost_mat = iou_cost_mat * 0.5 + label_diff_mat * 0.5
+    cost_mat = iou_cost_mat * positional_weight + label_diff_mat * (1 - positional_weight)
 
     # define source and target distributions
     a = np.ones(N) / N
@@ -75,12 +75,13 @@ def compute_emd_between_layout(
     return np.sum(ot_mat * cost_mat)
 
 
-def compute_ltsim_between_layout(layout_1: dict, layout_2: dict) -> float:
-    cost = compute_emd_between_layout(layout_1, layout_2, provide_cost_mat_and_dual_var)
+def compute_lt_sim_for_layout_pair(layout_1: dict, layout_2: dict, **kwargs) -> float:
+    cost_mat_fnc = lambda x, y: provide_cost_mat_and_dual_var(x, y, **kwargs)
+    cost = compute_emd_between_layout(layout_1, layout_2, cost_mat_fnc)
     return np.exp(-cost)
 
 
-def compute_latsim_for_layout_set(
+def compute_lt_sim_for_layout_set(
     layouts_gt: list[dict],
     layouts_generated: list[dict],
     disable_parallel: bool = True,
@@ -101,10 +102,10 @@ def compute_latsim_for_layout_set(
     if disable_parallel:
         scores = []
         for arg in args:
-            scores.append(compute_ltsim_between_layout(*arg))
+            scores.append(compute_lt_sim_for_layout_pair(*arg))
     else:
         with multiprocessing.Pool(n_jobs) as p:
-            scores = p.map(compute_ltsim_between_layout, args)
+            scores = p.map(compute_lt_sim_for_layout_pair, args)
     return np.array(scores).mean()
 
 

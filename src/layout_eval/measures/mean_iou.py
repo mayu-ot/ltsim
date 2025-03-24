@@ -64,7 +64,7 @@ def compute_mean_iou_for_layout_pair(layout_1: dict, layout_2: dict):
     return np.mean(ious)
 
 
-def compute_meaniou(
+def compute_mean_iou_for_layout_set(
     layouts_gt: list[dict],
     layouts_generated: list[dict],
     disable_parallel: bool = True,

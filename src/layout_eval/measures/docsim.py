@@ -61,7 +61,7 @@ def compute_doc_sim_for_layout_pair(
         return scores[ii, jj].mean()
 
 
-def compute_docsim(
+def compute_doc_sim_for_layout_set(
     layouts_gt: list[dict],
     layouts_generated: list[dict],
     disable_parallel: bool = True,
